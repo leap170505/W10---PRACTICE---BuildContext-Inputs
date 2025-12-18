@@ -1,4 +1,3 @@
-import 'package:app_kom_lu/W8/1%20-%20START%20CODE/EXERCISE-1/ex_1_start.dart';
 import 'package:flutter/material.dart';
 import '../../models/expense.dart';
 import 'expense_form.dart';
@@ -66,7 +65,15 @@ class _ExpensesViewState extends State<ExpensesView> {
           ),
         ],
       ),
-      body: ListView.builder(
+      body: _expenses.isEmpty 
+      ? const Center(
+        child: Text(
+          'No expenses found. Start adding some!',
+          style: TextStyle(fontSize: 16),
+        ),
+       ) 
+      :
+      ListView.builder(
         itemCount: _expenses.length,
         itemBuilder: (context, index) {
           final expense = _expenses[index];
@@ -93,9 +100,31 @@ class _ExpensesViewState extends State<ExpensesView> {
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
               child: const Icon(Icons.cancel, color: Colors.white),
             ),
-            onDismissed: (direction) => setState(() {
-              _expenses.removeAt(index);
-            }),
+            onDismissed: (direction) {
+              final removedExpense = _expenses[index];
+              final removedIndex = index;
+
+              setState(() {
+                _expenses.removeAt(index);
+              });
+
+              ScaffoldMessenger.of(context).clearSnackBars();
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Expense deleted'),
+                  duration: const Duration(seconds: 3),
+                  action: SnackBarAction(
+                    label: 'Undo',
+                    onPressed: () {
+                      setState(() {
+                        _expenses.insert(removedIndex, removedExpense);
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
             child: ExpenseItem(expense: expense),
           );
         }
